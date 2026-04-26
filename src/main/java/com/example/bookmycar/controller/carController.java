@@ -9,7 +9,7 @@ class CarController {
 
     @GetMapping("/cars")
     public List<String> getCars() {
-        return Arrays.asList("BMW", "Audi", "Tesla");
+        return Arrays.asList("Benz", "Ferrari", "McLaren");
     }
 
     @PostMapping("/book")
