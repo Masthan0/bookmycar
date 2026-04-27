@@ -1,17 +1,17 @@
 pipeline {
     agent any
 
-    tools {
-        maven "Maven3"
-        jdk "Java17"
+    environment {
+        IMAGE_NAME = "bookmycar"
+        CONTAINER_NAME = "bookmycar-app"
+        PORT = "8082"
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main',
-                url: 'https://github.com/Masthan0/bookmycar.git'
+                git 'https://github.com/Masthan0/bookmycar.git'
             }
         }
 
@@ -26,14 +26,27 @@ pipeline {
                 bat 'mvn test'
             }
         }
-    }
 
-    post {
-        success {
-            echo 'Build Successful'
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t bookmycar .'
+            }
         }
-        failure {
-            echo 'Build Failed'
+
+        stage('Stop Old Container') {
+            steps {
+                bat '''
+                docker rm -f bookmycar-app || exit 0
+                '''
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                bat '''
+                docker run -d -p 8082:8082 --name bookmycar-app bookmycar
+                '''
+            }
         }
     }
 }
